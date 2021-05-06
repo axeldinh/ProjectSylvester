@@ -13,10 +13,6 @@ else
         
         newM = newdims(A);
         
-        if any(any(A(newM+1:end, 1:newM) ~= 0) == 1)
-            fprintf("error")
-        end
-        
         X2 = rtrsyst(A(newM+1:end, newM+1:end), B, C(newM+1:end, :), mb, nb);
         C1 = gemm(- A(1:newM, newM +1:end), X2, C(1:newM, :));
         X1 = rtrsyst(A(1:newM, 1:newM), B, C1, mb, nb);
@@ -26,10 +22,6 @@ else
         
         newN = newdims(B);
         
-        if any(any(B(newN+1:end, 1:newN) ~= 0) == 1)
-            fprintf("error")
-        end
-        
         X1 = rtrsyst(A, B(1:newN, 1:newN), C(:, 1:newN), mb, nb);
         C2 = gemm(X1, B(1:newN, newN+1:end), C(:, newN+1:end));
         X2 = rtrsyst(A, B(newN+1:end, newN+1:end), C2, mb, nb);
@@ -37,14 +29,6 @@ else
         
     else
         newM = newdims(A); newN = newdims(B);
-        
-        if any(any(A(newM+1:end, 1:newM) ~= 0) == 1)
-            fprintf("error")
-        end
-        
-        if any(any(B(newN+1:end, 1:newN) ~= 0) == 1)
-            fprintf("error")
-        end
         
         X21 = rtrsyst(A(newM+1:end, newM+1:end), B(1:newN, 1:newN), C(newM+1:end, 1:newN), mb, nb);
         C22 = gemm(X21, B(1:newN, newN+1:end), C(newM+1:end, newN+1:end));

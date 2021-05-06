@@ -4,7 +4,7 @@ clear all
 
 format long
 
-sizes = [8, 16, 32, 64, 128, 256, 512];
+sizes = [8, 16, 32, 64, 128, 256, 512, 1024];
 errors = zeros(length(sizes));
 times_my = zeros(length(sizes));
 times_mat = zeros(length(sizes));
@@ -23,7 +23,7 @@ for i = 1:length(sizes)
         C = rand(M, N);
         
         t = tic();
-        X1 = rtrsyst(A, B, C, 4, 4);
+        X1 = rtrsyst(A, B, C, 64, 64);
         time = toc(t);
         times_my(i, j) = time;
         
