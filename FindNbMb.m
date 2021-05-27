@@ -1,17 +1,17 @@
-clc
-close all
 clear all
 
 format long
 
-M = 256;
-N = 256;
+save = true;
+
+M = 1024;
+N = 1024;
 
 A = schur(rand(M));
 B = schur(rand(N));
 C = rand(M, N);
 
-sizes = 4:20:100;
+sizes = 4:20:512;
 times = zeros(length(sizes),1);
 
 for i = 1:length(sizes)
@@ -26,10 +26,15 @@ for i = 1:length(sizes)
     end
 end
 
+figure()
 surf(sizes, sizes, times)
 xlabel('Mb')
 ylabel('Nb')
 zlabel('Time')
+
+if save
+    saveas(gcf, 'figures/MbNb.fig');
+end
 
 [~, x_id] = min(times);
 [~, y_id] = min(min(times));
