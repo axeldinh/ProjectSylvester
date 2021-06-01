@@ -1,40 +1,88 @@
 clear all
-
 format long
 
 save = true;
+load = true;
+num_runs = 10;
 
-M = 1024;
-N = 1024;
+if ~load
+    %% Computations
+    rng('default');
 
-A = schur(rand(M));
-B = schur(rand(N));
-C = rand(M, N);
+    M = 2048;
+    N = 2048;
 
-sizes = 4:20:512;
-times = zeros(length(sizes),1);
+    A = schur(rand(M));
+    B = schur(rand(N));
+    C = rand(M, N);
 
-for i = 1:length(sizes)
-    for j = 1:length(sizes)
-        Mb = sizes(i);
-        Nb = sizes(j);
-        
-        t = tic();
-        X = rtrsyst(A, B, C, Mb, Nb);
-        time = toc(t);
-        times(i,j) = time;
+    sizes = 4:20:204;
+    times = zeros(length(sizes),1);
+
+    for i = 1:length(sizes)
+        for j = 1:length(sizes)
+            Mb = sizes(i);
+            Nb = sizes(j);
+
+            time = 0;
+            for n = 1:num_runs
+                t = tic();
+                X = rtrsyct(A, B, C, Mb, Nb);
+                time = time + toc(t);
+            end
+            times(i,j) = time / num_runs;
+            fprintf("Mb = %d, Nb = %d: %.2fs\n", Mb, Nb, times(i,j));
+        end
     end
+
+    % Save it for later use
+    clear A B C X
+    save results/FindNbMb.mat
+end
+
+load results/FindNbMb.mat
+
+%% Plotting of a surface plot of the times
+
+% figure()
+% surf(sizes, sizes, times)
+% xlabel('Mb')
+% ylabel('Nb')
+% zlabel('Time')
+% 
+% if save
+%     saveas(gcf, 'figures/MbNb.fig');
+% end
+
+%% Plotting of a contour plot of the times
+
+figure()
+X = sizes' * ones(1, length(sizes));
+Y = ones(length(sizes), 1) * sizes;
+contourf(X, Y, times);
+title("Times [s] vs Mb and Nb (M=N="+num2str(M)+")"', 'Interpreter', 'latex')
+xlabel('Mb', 'Interpreter', 'latex')
+ylabel('Nb', 'Interpreter', 'latex')
+colorbar
+
+if save
+    saveas(gcf, 'figures/contour_MbNb.fig');
 end
 
 figure()
-surf(sizes, sizes, times)
-xlabel('Mb')
-ylabel('Nb')
-zlabel('Time')
+X = sizes(3:end)' * ones(1, length(sizes)-2);
+Y = ones(length(sizes)-2, 1) * sizes(3:end);
+contourf(X, Y, times(3:end, 3:end));
+title("Times [s] vs Mb and Nb (M=N="+num2str(M)+")", 'Interpreter', 'latex')
+xlabel('Mb', 'Interpreter', 'latex')
+ylabel('Nb', 'Interpreter', 'latex')
+colorbar
 
 if save
-    saveas(gcf, 'figures/MbNb.fig');
+    saveas(gcf, 'figures/contour_MbNbZoom.fig');
 end
+
+%% Getting the run with the best time (might not be the wisest pick)
 
 [~, x_id] = min(times);
 [~, y_id] = min(min(times));
